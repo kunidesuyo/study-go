@@ -1,12 +1,9 @@
 package main
 
-import (
-	"fmt"
-	"os/user"
-	"time"
-)
+import "fmt"
+
+const big = 9223372036854775807 + 1
 
 func main() {
-	fmt.Println("Hello, World!", time.Now())
-	fmt.Println(user.Current())
+	fmt.Println(big - 1)
 }
