@@ -1,9 +1,15 @@
 package main
 
-import "fmt"
-
-const big = 9223372036854775807 + 1
+import (
+	"fmt"
+	"strconv"
+)
 
 func main() {
-	fmt.Println(big - 1)
+	var s string = "14"
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		fmt.Println("ERROR")
+	}
+	fmt.Printf("%T %v\n", i, i)
 }
