@@ -2,14 +2,13 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 )
 
 func main() {
-	var s string = "14"
-	i, err := strconv.Atoi(s)
-	if err != nil {
-		fmt.Println("ERROR")
-	}
-	fmt.Printf("%T %v\n", i, i)
+	m := map[string]int{"apple": 100, "banana": 200}
+	fmt.Println(m)
+	v, ok := m["apple"]
+	fmt.Println(v, ok)
+	v2, ok2 := m["orange"]
+	fmt.Println(v2, ok2)
 }
