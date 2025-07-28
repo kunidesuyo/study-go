@@ -1,14 +1,16 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
+
+func foo(params ...int) {
+	fmt.Println(len(params), params)
+	for _, param := range params {
+		fmt.Println(param)
+	}
+}
 
 func main() {
-	m := map[string]int{"apple": 100, "banana": 200}
-	fmt.Println(m)
-	v, ok := m["apple"]
-	fmt.Println(v, ok)
-	v2, ok2 := m["orange"]
-	fmt.Println(v2, ok2)
+	s := make([]int, 3)
+	fmt.Println(s)
+	foo(s...)
 }
