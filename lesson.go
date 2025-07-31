@@ -7,19 +7,14 @@ import (
 	// "io"
 )
 
-func thirdPartyConnectDB() {
-	panic("Unable to connect database!")
-}
-
-func save() {
-	defer func() {
-		s := recover()
-		fmt.Println(s)
-	}()
-	thirdPartyConnectDB()
+func one(x *int) {
+	*x = 1
 }
 
 func main() {
-	save()
-	fmt.Println("ok?")
+	var n int = 100
+	one(&n)
+	fmt.Println(n)
+	fmt.Println(&n)
+	fmt.Println(&*&n)
 }
