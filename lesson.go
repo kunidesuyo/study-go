@@ -7,41 +7,40 @@ import (
 	// "io"
 )
 
-type Vertex struct {
-	x, y int
+type Human interface {
+	Say() string
 }
 
-func (v Vertex) Area() int {
-	return v.x * v.y
+type Person struct {
+	Name string
 }
 
-func (v *Vertex) Scale(i int) {
-	v.x = v.x * i
-	v.y = v.y * i
+func (p *Person) Say() string {
+	p.Name = "Mr." + p.Name
+	fmt.Println(p.Name)
+	return p.Name
 }
 
-type Vertex3D struct {
-	Vertex
-	z int
+func DriveCar(human Human) {
+	if human.Say() == "Mr. Mike" {
+		fmt.Println("Run")
+	} else {
+		fmt.Println("Get out")
+	}
 }
 
-func (v Vertex3D) Area3D() int {
-	return v.x * v.y * v.z
-}
-
-func (v *Vertex3D) Scale3D(i int) {
-	v.x = v.x * i
-	v.y = v.y * i
-	v.z = v.z * i
-}
-
-func New(x, y, z int) *Vertex3D {
-	return &Vertex3D{Vertex{x, y}, z}
+type Dog struct {
+	Name string
 }
 
 func main() {
-	v := New(3, 4, 5)
-	v.Scale3D(10)
-	// fmt.Println(v.Area())
-	fmt.Println(v.Area3D())
+	var mike Human = &Person{"Mike"}
+	DriveCar(mike)
+
+	var x Human = &Person{"X"}
+	DriveCar(x)
+
+	var dog Dog = Dog{"dog"}
+	DriveCar(dog)
+
 }
