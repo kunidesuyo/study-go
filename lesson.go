@@ -7,21 +7,13 @@ import (
 	// "io"
 )
 
-type Vertex struct {
-	X, Y int
-	S string
-}
+type Myint int
 
-func changeVertex(v Vertex) {
-	v.X = 1000
-}
-
-func changeVertex2(v *Vertex) {
-	(*v).X = 1000
+func (i Myint) Double() Myint {
+	return i * 2
 }
 
 func main() {
-	v2 := &Vertex{X: 1, Y: 2, S: "test"}
-	changeVertex2(v2)
-	fmt.Println(v2)
+	myInt := Myint(10)
+	fmt.Println(myInt.Double())
 }
