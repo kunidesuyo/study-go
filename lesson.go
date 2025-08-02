@@ -24,8 +24,9 @@ func goroutine1(s []int, c chan int) {
 	sum := 0
 	for _, v := range s {
 		sum += v
+		c <- sum
 	}
-	c <- sum
+	close(c)
 }
 
 func goroutine2(s []int, c chan int) {
@@ -42,11 +43,9 @@ func main() {
 	fmt.Println(len(ch))
 	ch <- 200
 	fmt.Println(len(ch))
-	x := <-ch
-	fmt.Println(x)
-	
-	fmt.Println(len(ch))
+	close(ch)
 
-	ch <- 300
-	fmt.Println(len(ch))	
+	for c := range ch {
+		fmt.Println(c)
+	}
 }
