@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 func producer(first chan int) {
@@ -25,6 +26,20 @@ func multi4(second <-chan int, third chan<- int) {
 	}
 }
 
+func goroutine1(ch chan string) {
+	for {
+		ch <- "packet from 1"
+		time.Sleep(3 * time.Second)
+	}
+}
+
+func goroutine2(ch chan int) {
+	for {
+		ch <- 100
+		time.Sleep(1 * time.Second)
+	}
+}
+
 // func consumer(ch chan int, wg *sync.WaitGroup) {
 // 	for i := range ch {
 // 		fmt.Println("process", i*1000)
@@ -34,16 +49,17 @@ func multi4(second <-chan int, third chan<- int) {
 // }
 
 func main() {
-	first := make(chan int)
-	second := make(chan int)
-	third := make(chan int)
-
-	go producer(first)
-	go multi2(first, second)
-	go multi4(second, third)
-
-	for result := range third {
-		fmt.Println(result)
+	c1 := make(chan string)
+	c2 := make(chan int)
+	go goroutine1(c1)
+	go goroutine2(c2)
+	for {
+		select {
+		case msg1 := <-c1:
+			fmt.Println(msg1)
+		case msg2 := <-c2:
+			fmt.Println(msg2)
+		}
 	}
 
 }
