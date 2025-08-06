@@ -5,5 +5,6 @@ func Average(s []int) int {
 	for _, i := range s {
 		total += i
 	}
+
 	return int(total / len(s))
 }
