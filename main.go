@@ -2,14 +2,11 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/markcheno/go-quote"
-	"github.com/markcheno/go-talib"
+	"regexp"
 )
 
 func main() {
-	spy, _ := quote.NewQuoteFromYahoo("SPY", "2016-01-01", "2016-04-01", quote.Daily, true)
-	fmt.Print(spy.CSV())
-	rsi2 := talib.Rsi(spy.Close, 2)
-	fmt.Println(rsi2)
+	r2 := regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
+	fss := r2.FindStringSubmatch("/view/test")
+	fmt.Println(fss, fss[0], fss[1], fss[2])
 }
