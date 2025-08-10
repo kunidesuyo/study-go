@@ -1,12 +1,23 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"regexp"
+	"io"
+	"net/http"
+	"net/url"
 )
 
 func main() {
-	r2 := regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
-	fss := r2.FindStringSubmatch("/view/test")
-	fmt.Println(fss, fss[0], fss[1], fss[2])
+	base, _ := url.Parse("https://example.com/fdsfsaf")
+	reference, _ := url.Parse("/test?a=1&b=2")
+	endpoint := base.ResolveReference(reference).String()
+	fmt.Println(endpoint)
+	req, _ := http.NewRequest("POST", endpoint, bytes.NewBuffer([]byte("password")))
+
+	var client *http.Client = &http.Client{}
+	resp, _ := client.Do(req)
+	body, _ := io.ReadAll(resp.Body)
+	fmt.Println(resp)
+	fmt.Println(string(body))
 }
