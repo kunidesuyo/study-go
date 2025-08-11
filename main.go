@@ -1,23 +1,52 @@
 package main
 
 import (
-	"bytes"
+	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 )
 
-func main() {
-	base, _ := url.Parse("https://example.com/fdsfsaf")
-	reference, _ := url.Parse("/test?a=1&b=2")
-	endpoint := base.ResolveReference(reference).String()
-	fmt.Println(endpoint)
-	req, _ := http.NewRequest("POST", endpoint, bytes.NewBuffer([]byte("password")))
+type T struct {}
 
-	var client *http.Client = &http.Client{}
-	resp, _ := client.Do(req)
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println(resp)
-	fmt.Println(string(body))
+type Person struct {
+	Name      string   `json:"name,omitempty"`
+	Age       int      `json:"age,omitempty"`
+	Nicknames []string `json:"nicknames,omitempty"`
+	T         *T        `json:"T,omitempty"`
+}
+
+// func (p Person) MarshalJSON() ([]byte, error) {
+// 	v, err := json.Marshal(&struct{
+// 		Name string
+// 	}{
+// 		Name: "Mr. " + p.Name,
+// 	})
+// 	return v, err
+// }
+
+func (p *Person) UnmarshalJSON(b []byte) error {
+	type Person2 struct {
+		Name string
+	}
+	var p2 Person2
+	err := json.Unmarshal(b, &p2)
+	if err != nil {
+		fmt.Println(err)
+	}
+	p.Name = p2.Name + "!"
+	return err
+}
+
+
+
+func main() {
+	b := []byte(`{"name": "Mike", "age": 20, "nicknames": []}`)
+	var p Person
+	if err := json.Unmarshal(b, &p); err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(p.Name, p.Age, p.Nicknames)
+
+	v, _ := json.Marshal(p)
+	fmt.Println(string(v))
+
 }
