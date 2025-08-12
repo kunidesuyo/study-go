@@ -1,52 +1,50 @@
 package main
 
 import (
-	"encoding/json"
+	"database/sql"
 	"fmt"
+	"log"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
-type T struct {}
+var DbConnection *sql.DB
 
 type Person struct {
-	Name      string   `json:"name,omitempty"`
-	Age       int      `json:"age,omitempty"`
-	Nicknames []string `json:"nicknames,omitempty"`
-	T         *T        `json:"T,omitempty"`
+	Name string
+	Age  int
 }
-
-// func (p Person) MarshalJSON() ([]byte, error) {
-// 	v, err := json.Marshal(&struct{
-// 		Name string
-// 	}{
-// 		Name: "Mr. " + p.Name,
-// 	})
-// 	return v, err
-// }
-
-func (p *Person) UnmarshalJSON(b []byte) error {
-	type Person2 struct {
-		Name string
-	}
-	var p2 Person2
-	err := json.Unmarshal(b, &p2)
-	if err != nil {
-		fmt.Println(err)
-	}
-	p.Name = p2.Name + "!"
-	return err
-}
-
-
 
 func main() {
-	b := []byte(`{"name": "Mike", "age": 20, "nicknames": []}`)
-	var p Person
-	if err := json.Unmarshal(b, &p); err != nil {
-		fmt.Println(err)
+	DbConnection, _ = sql.Open("sqlite3", "./example.sql")
+	defer DbConnection.Close()
+	cmd := `CREATE TABLE IF NOT EXISTS person(
+		name STRING,
+		age INT
+	)`
+	_, err := DbConnection.Exec(cmd)
+	if err != nil {
+		log.Fatalln(err)
 	}
-	fmt.Println(p.Name, p.Age, p.Nicknames)
 
-	v, _ := json.Marshal(p)
-	fmt.Println(string(v))
-
+	tableName := "person; INSERT INTO person (name, age) VALUES ('Mr.X', 100)"
+	cmd = fmt.Sprintf("SELECT * FROM %s", tableName)
+	rows, _ := DbConnection.Query(cmd)
+	defer rows.Close()
+	var pp []Person
+	for rows.Next() {
+		var p Person
+		err = rows.Scan(&p.Name, &p.Age)
+		if err != nil {
+			log.Println(err)
+		}
+		pp = append(pp, p)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	for _, p := range pp {
+		fmt.Println(p.Name, p.Age)
+	}
 }
