@@ -1,7 +1,7 @@
 package database
 
 import (
-	"awesomeProject/pkg"
+	"go-api-arch-clean-template/pkg"
 )
 
 type Config struct {

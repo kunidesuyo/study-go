@@ -5,9 +5,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"awesomeProject/entity"
-	"awesomeProject/pkg"
-	"awesomeProject/pkg/tester"
+	"go-api-arch-clean-template/entity"
+	"go-api-arch-clean-template/pkg"
+	"go-api-arch-clean-template/pkg/tester"
 )
 
 func TestAlbum(t *testing.T) {

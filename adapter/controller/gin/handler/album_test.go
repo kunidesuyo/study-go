@@ -12,9 +12,9 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
-	"awesomeProject/adapter/controller/gin/presenter"
-	"awesomeProject/entity"
-	"awesomeProject/pkg"
+	"go-api-arch-clean-template/adapter/controller/gin/presenter"
+	"go-api-arch-clean-template/entity"
+	"go-api-arch-clean-template/pkg"
 )
 
 type MockAlbumUseCase struct {

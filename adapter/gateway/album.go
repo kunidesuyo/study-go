@@ -4,7 +4,7 @@ import (
 	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 
-	"awesomeProject/entity"
+	"go-api-arch-clean-template/entity"
 )
 
 type AlbumRepository interface {

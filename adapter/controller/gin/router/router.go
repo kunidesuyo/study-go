@@ -12,13 +12,13 @@ import (
 	"github.com/swaggo/swag"
 	"gorm.io/gorm"
 
-	"awesomeProject/adapter/controller/gin/handler"
-	"awesomeProject/adapter/controller/gin/middleware"
-	"awesomeProject/adapter/controller/gin/presenter"
-	"awesomeProject/adapter/gateway"
-	"awesomeProject/pkg"
-	"awesomeProject/pkg/logger"
-	"awesomeProject/usecase"
+	"go-api-arch-clean-template/adapter/controller/gin/handler"
+	"go-api-arch-clean-template/adapter/controller/gin/middleware"
+	"go-api-arch-clean-template/adapter/controller/gin/presenter"
+	"go-api-arch-clean-template/adapter/gateway"
+	"go-api-arch-clean-template/pkg"
+	"go-api-arch-clean-template/pkg/logger"
+	"go-api-arch-clean-template/usecase"
 )
 
 // Swaggerの設定をする

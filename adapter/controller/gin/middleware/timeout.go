@@ -7,15 +7,15 @@ import (
 	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
 
-	"awesomeProject/adapter/controller/gin/presenter"
+	"go-api-arch-clean-template/adapter/controller/gin/presenter"
 )
 
 func TimeoutMiddleware(duration time.Duration) gin.HandlerFunc {
 	return timeout.New(
 		timeout.WithTimeout(duration),
-		// timeout.WithHandler(func(c *gin.Context) {
-		// 	c.Next()
-		// }),
+		timeout.WithHandler(func(c *gin.Context) {
+			c.Next()
+		}),
 		timeout.WithResponse(func(c *gin.Context) {
 			c.JSON(http.StatusRequestTimeout, &presenter.ErrorResponse{Message: "timeout"})
 			c.Abort()

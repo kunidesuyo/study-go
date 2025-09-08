@@ -10,10 +10,10 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/suite"
 
-	"awesomeProject/adapter/gateway"
-	"awesomeProject/entity"
-	"awesomeProject/pkg"
-	"awesomeProject/pkg/tester"
+	"go-api-arch-clean-template/adapter/gateway"
+	"go-api-arch-clean-template/entity"
+	"go-api-arch-clean-template/pkg"
+	"go-api-arch-clean-template/pkg/tester"
 )
 
 type AlbumRepositorySuite struct {

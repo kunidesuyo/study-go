@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"awesomeProject/adapter/gateway"
-	"awesomeProject/entity"
+	"go-api-arch-clean-template/adapter/gateway"
+	"go-api-arch-clean-template/entity"
 )
 
 type (

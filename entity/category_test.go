@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"awesomeProject/entity"
+	"go-api-arch-clean-template/entity"
 )
 
 func TestCategory(t *testing.T) {

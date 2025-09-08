@@ -17,7 +17,7 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
@@ -753,143 +753,113 @@ func ParseUpdateAlbumByIdResponse(rsp *http.Response) (*UpdateAlbumByIdResponse,
 type ServerInterface interface {
 	// Create a new album
 	// (POST /albums)
-	CreateAlbum(c *gin.Context)
+	CreateAlbum(ctx echo.Context) error
 	// Delete a album by ID
 	// (DELETE /albums/{id})
-	DeleteAlbumById(c *gin.Context, id int)
+	DeleteAlbumById(ctx echo.Context, id int) error
 	// Find album by ID
 	// (GET /albums/{id})
-	GetAlbumById(c *gin.Context, id int)
+	GetAlbumById(ctx echo.Context, id int) error
 	// Update a album by ID
 	// (PATCH /albums/{id})
-	UpdateAlbumById(c *gin.Context, id int)
+	UpdateAlbumById(ctx echo.Context, id int) error
 }
 
-// ServerInterfaceWrapper converts contexts to parameters.
+// ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
-	Handler            ServerInterface
-	HandlerMiddlewares []MiddlewareFunc
-	ErrorHandler       func(*gin.Context, error, int)
+	Handler ServerInterface
 }
 
-type MiddlewareFunc func(c *gin.Context)
-
-// CreateAlbum operation middleware
-func (siw *ServerInterfaceWrapper) CreateAlbum(c *gin.Context) {
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-		if c.IsAborted() {
-			return
-		}
-	}
-
-	siw.Handler.CreateAlbum(c)
-}
-
-// DeleteAlbumById operation middleware
-func (siw *ServerInterfaceWrapper) DeleteAlbumById(c *gin.Context) {
-
+// CreateAlbum converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateAlbum(ctx echo.Context) error {
 	var err error
 
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.CreateAlbum(ctx)
+	return err
+}
+
+// DeleteAlbumById converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteAlbumById(ctx echo.Context) error {
+	var err error
 	// ------------- Path parameter "id" -------------
 	var id int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
-		return
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
 
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-		if c.IsAborted() {
-			return
-		}
-	}
-
-	siw.Handler.DeleteAlbumById(c, id)
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DeleteAlbumById(ctx, id)
+	return err
 }
 
-// GetAlbumById operation middleware
-func (siw *ServerInterfaceWrapper) GetAlbumById(c *gin.Context) {
-
+// GetAlbumById converts echo context to params.
+func (w *ServerInterfaceWrapper) GetAlbumById(ctx echo.Context) error {
 	var err error
-
 	// ------------- Path parameter "id" -------------
 	var id int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
-		return
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
 
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-		if c.IsAborted() {
-			return
-		}
-	}
-
-	siw.Handler.GetAlbumById(c, id)
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetAlbumById(ctx, id)
+	return err
 }
 
-// UpdateAlbumById operation middleware
-func (siw *ServerInterfaceWrapper) UpdateAlbumById(c *gin.Context) {
-
+// UpdateAlbumById converts echo context to params.
+func (w *ServerInterfaceWrapper) UpdateAlbumById(ctx echo.Context) error {
 	var err error
-
 	// ------------- Path parameter "id" -------------
 	var id int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
-		return
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
 
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-		if c.IsAborted() {
-			return
-		}
-	}
-
-	siw.Handler.UpdateAlbumById(c, id)
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UpdateAlbumById(ctx, id)
+	return err
 }
 
-// GinServerOptions provides options for the Gin server.
-type GinServerOptions struct {
-	BaseURL      string
-	Middlewares  []MiddlewareFunc
-	ErrorHandler func(*gin.Context, error, int)
+// This is a simple interface which specifies echo.Route addition functions which
+// are present on both echo.Echo and echo.Group, since we want to allow using
+// either of them for path registration
+type EchoRouter interface {
+	CONNECT(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	DELETE(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	GET(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	HEAD(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	OPTIONS(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	PATCH(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	PUT(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	TRACE(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
 }
 
-// RegisterHandlers creates http.Handler with routing matching OpenAPI spec.
-func RegisterHandlers(router gin.IRouter, si ServerInterface) {
-	RegisterHandlersWithOptions(router, si, GinServerOptions{})
+// RegisterHandlers adds each server route to the EchoRouter.
+func RegisterHandlers(router EchoRouter, si ServerInterface) {
+	RegisterHandlersWithBaseURL(router, si, "")
 }
 
-// RegisterHandlersWithOptions creates http.Handler with additional options
-func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options GinServerOptions) {
-	errorHandler := options.ErrorHandler
-	if errorHandler == nil {
-		errorHandler = func(c *gin.Context, err error, statusCode int) {
-			c.JSON(statusCode, gin.H{"msg": err.Error()})
-		}
-	}
+// Registers handlers, and prepends BaseURL to the paths, so that the paths
+// can be served under a prefix.
+func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL string) {
 
 	wrapper := ServerInterfaceWrapper{
-		Handler:            si,
-		HandlerMiddlewares: options.Middlewares,
-		ErrorHandler:       errorHandler,
+		Handler: si,
 	}
 
-	router.POST(options.BaseURL+"/albums", wrapper.CreateAlbum)
-	router.DELETE(options.BaseURL+"/albums/:id", wrapper.DeleteAlbumById)
-	router.GET(options.BaseURL+"/albums/:id", wrapper.GetAlbumById)
-	router.PATCH(options.BaseURL+"/albums/:id", wrapper.UpdateAlbumById)
+	router.POST(baseURL+"/albums", wrapper.CreateAlbum)
+	router.DELETE(baseURL+"/albums/:id", wrapper.DeleteAlbumById)
+	router.GET(baseURL+"/albums/:id", wrapper.GetAlbumById)
+	router.PATCH(baseURL+"/albums/:id", wrapper.UpdateAlbumById)
+
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object

@@ -2,8 +2,8 @@ package tester
 
 import (
 	"fmt"
-	"awesomeProject/entity"
-	"awesomeProject/infrastructure/database"
+	"go-api-arch-clean-template/entity"
+	"go-api-arch-clean-template/infrastructure/database"
 	"os"
 
 	"github.com/stretchr/testify/suite"

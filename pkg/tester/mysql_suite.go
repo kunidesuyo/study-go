@@ -3,9 +3,9 @@ package tester
 import (
 	"context"
 	"fmt"
-	"awesomeProject/entity"
-	"awesomeProject/infrastructure/database"
-	"awesomeProject/pkg"
+	"go-api-arch-clean-template/entity"
+	"go-api-arch-clean-template/infrastructure/database"
+	"go-api-arch-clean-template/pkg"
 	"time"
 
 	"github.com/stretchr/testify/suite"

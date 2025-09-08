@@ -6,7 +6,7 @@ import (
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 
-	"awesomeProject/pkg/logger"
+	"go-api-arch-clean-template/pkg/logger"
 )
 
 func GinZap() gin.HandlerFunc {

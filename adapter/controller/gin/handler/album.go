@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"awesomeProject/adapter/controller/gin/presenter"
-	"awesomeProject/entity"
-	"awesomeProject/pkg/logger"
-	"awesomeProject/usecase"
+	"go-api-arch-clean-template/adapter/controller/gin/presenter"
+	"go-api-arch-clean-template/entity"
+	"go-api-arch-clean-template/pkg/logger"
+	"go-api-arch-clean-template/usecase"
 )
 
 type AlbumHandler struct {

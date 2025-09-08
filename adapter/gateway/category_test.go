@@ -5,9 +5,9 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"awesomeProject/adapter/gateway"
-	"awesomeProject/entity"
-	"awesomeProject/pkg/tester"
+	"go-api-arch-clean-template/adapter/gateway"
+	"go-api-arch-clean-template/entity"
+	"go-api-arch-clean-template/pkg/tester"
 )
 
 type CategoryRepositorySuite struct {

@@ -3,7 +3,7 @@ package gateway
 import (
 	"gorm.io/gorm"
 
-	"awesomeProject/entity"
+	"go-api-arch-clean-template/entity"
 )
 
 type CategoryRepository interface {

@@ -7,7 +7,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
-	"awesomeProject/pkg/logger"
+	"go-api-arch-clean-template/pkg/logger"
 )
 
 func MockDB() (mock sqlmock.Sqlmock, mockGormDB *gorm.DB) {

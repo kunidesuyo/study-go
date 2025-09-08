@@ -3,7 +3,7 @@ package entity
 import (
 	"time"
 
-	"awesomeProject/pkg"
+	"go-api-arch-clean-template/pkg"
 )
 
 type Album struct {
