@@ -99,13 +99,15 @@ func (suite *AlbumHandlersSuite) TestCreate() {
 
 	suite.Assert().Equal(http.StatusCreated, w.Code)
 	bodyBytes, _ := io.ReadAll(w.Body)
-	var albumGetResponse presenter.AlbumResponse
-	err := json.Unmarshal(bodyBytes, &albumGetResponse)
+	var albumResponse presenter.AlbumResponse
+	err := json.Unmarshal(bodyBytes, &albumResponse)
 	suite.Assert().Nil(err)
 	suite.Assert().Equal(http.StatusCreated, w.Code)
-	suite.Assert().Equal("album", albumGetResponse.Title)
-	suite.Assert().Equal("sports", string(albumGetResponse.Category.Name))
-	suite.Assert().NotNil(albumGetResponse.ReleaseDate)
+	suite.Assert().Equal(1, albumResponse.Data.Id)
+	suite.Assert().Equal("album", albumResponse.Data.Kind)
+	suite.Assert().Equal("album", albumResponse.Data.Title)
+	suite.Assert().Equal("sports", string(albumResponse.Data.Category.Name))
+	suite.Assert().NotNil(albumResponse.Data.ReleaseDate)
 }
 
 func (suite *AlbumHandlersSuite) TestCreateRequestBodyFailure() {
@@ -118,7 +120,7 @@ func (suite *AlbumHandlersSuite) TestCreateRequestBodyFailure() {
 
 	suite.albumHandler.CreateAlbum(ginContext)
 	suite.Assert().Equal(http.StatusBadRequest, w.Code)
-	suite.Assert().JSONEq(`{"message": "invalid request"}`, w.Body.String())
+	suite.Assert().JSONEq(`{"error":{"code":400, "message":"invalid request"}}`, w.Body.String())
 }
 
 func (suite *AlbumHandlersSuite) TestCreateFailure() {
@@ -146,7 +148,7 @@ func (suite *AlbumHandlersSuite) TestCreateFailure() {
 	suite.albumHandler.CreateAlbum(ginContext)
 
 	suite.Assert().Equal(http.StatusInternalServerError, w.Code)
-	suite.Assert().JSONEq(`{"message":"invalid"}`, w.Body.String())
+	suite.Assert().JSONEq(`{"error":{"code":500, "message":"invalid"}}`, w.Body.String())
 }
 
 func (suite *AlbumHandlersSuite) TestGet() {
@@ -172,13 +174,15 @@ func (suite *AlbumHandlersSuite) TestGet() {
 	suite.albumHandler.GetAlbumById(ginContext, 1)
 
 	bodyBytes, _ := io.ReadAll(w.Body)
-	var albumGetResponse presenter.AlbumResponse
-	err := json.Unmarshal(bodyBytes, &albumGetResponse)
+	var albumResponse presenter.AlbumResponse
+	err := json.Unmarshal(bodyBytes, &albumResponse)
 	suite.Assert().Nil(err)
 	suite.Assert().Equal(http.StatusOK, w.Code)
-	suite.Assert().Equal("album", albumGetResponse.Title)
-	suite.Assert().Equal("sports", string(albumGetResponse.Category.Name))
-	suite.Assert().NotNil(albumGetResponse.ReleaseDate)
+	suite.Assert().Equal(1, albumResponse.Data.Id)
+	suite.Assert().Equal("album", albumResponse.Data.Kind)
+	suite.Assert().Equal("album", albumResponse.Data.Title)
+	suite.Assert().Equal("sports", string(albumResponse.Data.Category.Name))
+	suite.Assert().NotNil(albumResponse.Data.ReleaseDate)
 }
 
 func (suite *AlbumHandlersSuite) TestGetNoAlbumFailure() {
@@ -195,7 +199,7 @@ func (suite *AlbumHandlersSuite) TestGetNoAlbumFailure() {
 	suite.albumHandler.GetAlbumById(ginContext, 1111)
 
 	suite.Assert().Equal(http.StatusInternalServerError, w.Code)
-	suite.Assert().JSONEq(`{"message": "invalid"}`, w.Body.String())
+	suite.Assert().JSONEq(`{"error":{"code":500, "message":"invalid"}}`, w.Body.String())
 }
 
 func (suite *AlbumHandlersSuite) TestUpdate() {
@@ -240,13 +244,15 @@ func (suite *AlbumHandlersSuite) TestUpdate() {
 	suite.albumHandler.UpdateAlbumById(ginContext, 1)
 
 	bodyBytes, _ := io.ReadAll(w.Body)
-	var albumGetResponse presenter.AlbumResponse
-	err := json.Unmarshal(bodyBytes, &albumGetResponse)
+	var albumResponse presenter.AlbumResponse
+	err := json.Unmarshal(bodyBytes, &albumResponse)
 	suite.Assert().Nil(err)
 	suite.Assert().Equal(http.StatusOK, w.Code)
-	suite.Assert().Equal("updated", albumGetResponse.Title)
-	suite.Assert().Equal("food", string(albumGetResponse.Category.Name))
-	suite.Assert().NotNil(albumGetResponse.ReleaseDate)
+	suite.Assert().Equal(1, albumResponse.Data.Id)
+	suite.Assert().Equal("album", albumResponse.Data.Kind)
+	suite.Assert().Equal("updated", albumResponse.Data.Title)
+	suite.Assert().Equal("food", string(albumResponse.Data.Category.Name))
+	suite.Assert().NotNil(albumResponse.Data.ReleaseDate)
 }
 
 func (suite *AlbumHandlersSuite) TestUpdateRequestBodyFailure() {
@@ -260,7 +266,7 @@ func (suite *AlbumHandlersSuite) TestUpdateRequestBodyFailure() {
 	suite.albumHandler.CreateAlbum(ginContext)
 
 	suite.Assert().Equal(http.StatusBadRequest, w.Code)
-	suite.Assert().JSONEq(`{"message": "invalid request"}`, w.Body.String())
+	suite.Assert().JSONEq(`{"error":{"code":400, "message":"invalid request"}}`, w.Body.String())
 }
 
 func (suite *AlbumHandlersSuite) TestUpdateAlbumFailure() {
@@ -293,7 +299,7 @@ func (suite *AlbumHandlersSuite) TestUpdateAlbumFailure() {
 	suite.albumHandler.UpdateAlbumById(ginContext, 1111)
 
 	suite.Assert().Equal(http.StatusInternalServerError, w.Code)
-	suite.Assert().JSONEq(`{"message": "invalid"}`, w.Body.String())
+	suite.Assert().JSONEq(`{"error":{"code":500, "message":"invalid"}}`, w.Body.String())
 }
 
 func (suite *AlbumHandlersSuite) TestDelete() {
@@ -324,5 +330,5 @@ func (suite *AlbumHandlersSuite) TestDeleteAlbumFailure() {
 	suite.albumHandler.DeleteAlbumById(ginContext, 1111)
 
 	suite.Assert().Equal(http.StatusInternalServerError, w.Code)
-	suite.Assert().JSONEq(`{"message": "invalid"}`, w.Body.String())
+	suite.Assert().JSONEq(`{"error":{"code":500, "message":"invalid"}}`, w.Body.String())
 }

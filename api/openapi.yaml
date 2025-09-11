@@ -9,8 +9,6 @@ servers:
 paths:
   /albums:
     post:
-      tags:
-        - albums
       summary: Create a new album
       operationId: createAlbum
       requestBody:
@@ -23,8 +21,6 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
   /albums/{id}:
     get:
-      tags:
-        - albums
       summary: Find album by ID
       operationId: getAlbumById
       parameters:
@@ -41,8 +37,6 @@ paths:
         '404':
           $ref: '#/components/responses/ErrorResponse'
     patch:
-      tags:
-        - albums
       summary: Update a album by ID
       operationId: updateAlbumById
       parameters:
@@ -62,8 +56,6 @@ paths:
         '404':
           $ref: '#/components/responses/ErrorResponse'
     delete:
-      tags:
-        - albums
       summary: Delete a album by ID
       operationId: deleteAlbumById
       parameters:
@@ -81,6 +73,9 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
 components:
   schemas:
+    ApiVersion:
+      type: string
+      default: "v1"
     ReleaseDate:
       type: string
       format: date
@@ -97,9 +92,35 @@ components:
             - sports
       required:
         - name
+    Album:
+      type: object
+      properties:
+        kind:
+          type: string
+          default: "album"
+        id:
+          type: integer
+        title:
+          type: string
+        category:
+          $ref: '#/components/schemas/Category'
+        anniversary:
+          type: integer
+        releaseDate:
+          $ref: '#/components/schemas/ReleaseDate'
+      required:
+        - kind
+        - id
+        - title
+        - category
+        - anniversary
+        - releaseDate
     AlbumUpdateRequest:
       type: object
       properties:
+        kind:
+          type: string
+          default: "album"
         title:
           type: string
         category:
@@ -107,6 +128,9 @@ components:
     AlbumCreateRequest:
       type: object
       properties:
+        kind:
+          type: string
+          default: "album"
         title:
           type: string
         category:
@@ -117,6 +141,16 @@ components:
         - title
         - category
         - releaseDate
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+      required:
+        - message
+        - code
   requestBodies:
     AlbumCreateRequestBody:
       content:
@@ -130,36 +164,25 @@ components:
             $ref: '#/components/schemas/AlbumUpdateRequest'
   responses:
     AlbumResponse:
-      description: 'album response'
       content:
         application/json:
           schema:
             type: object
             properties:
-              id:
-                type: integer
-              title:
-                type: string
-              category:
-                $ref: '#/components/schemas/Category'
-              anniversary:
-                type: integer
-              releaseDate:
-                $ref: '#/components/schemas/ReleaseDate'
+              apiVersion:
+                $ref: '#/components/schemas/ApiVersion'
+              data:
+                $ref: '#/components/schemas/Album'
             required:
-              - id
-              - title
-              - category
-              - anniversary
-              - releaseDate
+              - apiVersion
+              - data
     ErrorResponse:
-      description: 'error'
       content:
         application/json:
           schema:
             type: object
             properties:
-              message:
-                type: string
+              error:
+                $ref: '#/components/schemas/Error'
             required:
-              - message
+              - error

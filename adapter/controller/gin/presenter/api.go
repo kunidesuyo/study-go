@@ -29,9 +29,20 @@ const (
 	Sports CategoryName = "sports"
 )
 
+// Album defines model for Album.
+type Album struct {
+	Anniversary int         `json:"anniversary"`
+	Category    Category    `json:"category"`
+	Id          int         `json:"id"`
+	Kind        string      `json:"kind"`
+	ReleaseDate ReleaseDate `json:"releaseDate"`
+	Title       string      `json:"title"`
+}
+
 // AlbumCreateRequest defines model for AlbumCreateRequest.
 type AlbumCreateRequest struct {
 	Category    Category    `json:"category"`
+	Kind        *string     `json:"kind,omitempty"`
 	ReleaseDate ReleaseDate `json:"releaseDate"`
 	Title       string      `json:"title"`
 }
@@ -39,8 +50,12 @@ type AlbumCreateRequest struct {
 // AlbumUpdateRequest defines model for AlbumUpdateRequest.
 type AlbumUpdateRequest struct {
 	Category *Category `json:"category,omitempty"`
+	Kind     *string   `json:"kind,omitempty"`
 	Title    *string   `json:"title,omitempty"`
 }
+
+// ApiVersion defines model for ApiVersion.
+type ApiVersion = string
 
 // Category defines model for Category.
 type Category struct {
@@ -51,21 +66,24 @@ type Category struct {
 // CategoryName defines model for Category.Name.
 type CategoryName string
 
+// Error defines model for Error.
+type Error struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
 // ReleaseDate defines model for ReleaseDate.
 type ReleaseDate = openapi_types.Date
 
 // AlbumResponse defines model for AlbumResponse.
 type AlbumResponse struct {
-	Anniversary int         `json:"anniversary"`
-	Category    Category    `json:"category"`
-	Id          int         `json:"id"`
-	ReleaseDate ReleaseDate `json:"releaseDate"`
-	Title       string      `json:"title"`
+	ApiVersion ApiVersion `json:"apiVersion"`
+	Data       Album      `json:"data"`
 }
 
 // ErrorResponse defines model for ErrorResponse.
 type ErrorResponse struct {
-	Message string `json:"message"`
+	Error Error `json:"error"`
 }
 
 // AlbumCreateRequestBody defines model for AlbumCreateRequestBody.
@@ -895,18 +913,19 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"H4sIAAAAAAAC/9SWzW7bOBDHX0WY3SNhyUmADXRLnGzgy2JhtL0EOTDS2GYqkQxJuTAMvntBUor1ZSdN",
+	"U6OFLwI5nPnPb4Yc7yATpRQcudGQ7kDhc4XaXIucoV+4Kh6rcqaQGly87G3dTia4QW7cJ5WyYBk1TPD4",
+	"SQvu1nS2xpK6r78VLiGFv+J9qDjs6njoHqy1loS4n2X+K+N23Pu4loBCLQXXrewX9coPBZdKSFSmpkgl",
+	"+4JKs2B1VNje0hLIqXlbKhCkP1dMYQ7pfTti7eaBgNlKhBTE4xNmDehbpYT6gBTR+XlNqw820BqOjuqz",
+	"pA64L8cIXc7ZBpWmyjdI7YVxgytUDmNGDa5E2D0mb9bYWQIsH/f1lXG/k+OSVoWBFKhX9aJeG8X4CnyO",
+	"BVKNN9Tga5EXLVNLwDBTYCt+47MHzmvxUpsjrVxJh0tXzZA1GbnpQ9LvAfk7ARuB9CYs3Zfi1FiOJDeU",
+	"23lp9s430zHPs5bwbkqH2p/T0ktB7m7iPSyFcN1XVpplQEBLoYxugTxQCO9mDPdt84z0CIscxwWVqDVd",
+	"vaH2jSEJzsaCL7r9txSqpA6eK/4QnwvA+FL40KFEcCeiq//n0ScsZREObZpqwHSSTBIXRkjkVDJI4XyS",
+	"TM6BgKRm7fOMfRP4TylCqzkM/gme55BCuKBXdauo7mgc673ORI8PjPP+3DtLpof91XZxdzhaAhdJ8vqp",
+	"7rzxD3xVlv7prpOLaMTxW0Rf5loNJd6x3IauLjBUqMvmxq97Wdfbee65KlqiQaUhvd8Bc2VwrKFp5PB2",
+	"7tvEqApJa8b1+80+DEhdBEk6U0yaUOn/RDSrp+g7sbhTFz8HM9CIaAAZPW6j+Y1zvMKRtrpDc2puyYk6",
+	"7ANQ/st43scoqcnWQ5BhUpyA5Xsu/vD/tP2TyxLS6Xe4t0G1aYBXqoAU1sbINI6Tif+ll8llElPJ4s0U",
+	"LOkZFSKjxVpoc9xsevaP9zbtmj3Y7wEAAP//6ZyV11UNAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

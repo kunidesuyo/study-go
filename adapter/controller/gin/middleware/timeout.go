@@ -17,7 +17,7 @@ func TimeoutMiddleware(duration time.Duration) gin.HandlerFunc {
 			c.Next()
 		}),
 		timeout.WithResponse(func(c *gin.Context) {
-			c.JSON(http.StatusRequestTimeout, &presenter.ErrorResponse{Message: "timeout"})
+			c.JSON(presenter.NewErrorResponse(http.StatusRequestTimeout, "timeout"))
 			c.Abort()
 		}),
 	)
