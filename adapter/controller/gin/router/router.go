@@ -21,7 +21,6 @@ import (
 	"go-api-arch-clean-template/usecase"
 )
 
-// Swaggerの設定をする
 func setupSwagger(router *gin.Engine) (*openapi3.T, error) {
 	swagger, err := presenter.GetSwagger()
 	if err != nil {
@@ -54,11 +53,9 @@ func NewGinRouter(db *gorm.DB, corsAllowOrigins []string) (*gin.Engine, error) {
 	router.Use(middleware.GinZap())
 	router.Use(middleware.RecoveryWithZap())
 
-	// ViewのHTMLの設定です。
 	router.LoadHTMLGlob("./adapter/presenter/html/*")
 	router.GET("/", handler.Index)
 
-	// Healthチェック用のAPIです。
 	router.GET("/health", handler.Health)
 
 	apiGroup := router.Group("/api")
@@ -67,11 +64,14 @@ func NewGinRouter(db *gorm.DB, corsAllowOrigins []string) (*gin.Engine, error) {
 		v1 := apiGroup.Group("/v1")
 		{
 			v1.Use(ginMiddleware.OapiRequestValidator(swagger))
-			// Album APIを追加します。
 			albumRepository := gateway.NewAlbumRepository(db)
 			albumUseCase := usecase.NewAlbumUseCase(albumRepository)
 			albumHandler := handler.NewAlbumHandler(albumUseCase)
-			presenter.RegisterHandlers(v1, albumHandler)
+			userHandler := handler.NewUserHandler()
+			presenter.RegisterHandlers(v1,
+				handler.NewHandler().
+					Register(albumHandler).
+					Register(userHandler))
 		}
 	}
 	return router, err

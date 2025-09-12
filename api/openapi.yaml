@@ -9,6 +9,8 @@ servers:
 paths:
   /albums:
     post:
+      tags:
+        - album
       summary: Create a new album
       operationId: createAlbum
       requestBody:
@@ -21,6 +23,8 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
   /albums/{id}:
     get:
+      tags:
+        - album
       summary: Find album by ID
       operationId: getAlbumById
       parameters:
@@ -37,6 +41,8 @@ paths:
         '404':
           $ref: '#/components/responses/ErrorResponse'
     patch:
+      tags:
+        - album
       summary: Update a album by ID
       operationId: updateAlbumById
       parameters:
@@ -56,6 +62,8 @@ paths:
         '404':
           $ref: '#/components/responses/ErrorResponse'
     delete:
+      tags:
+        - album
       summary: Delete a album by ID
       operationId: deleteAlbumById
       parameters:
@@ -71,6 +79,21 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '404':
           $ref: '#/components/responses/ErrorResponse'
+  /users/{id}:
+    get:
+      tags:
+        - user
+      summary: Find user by ID
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/UserResponse'
 components:
   schemas:
     ApiVersion:
@@ -115,6 +138,20 @@ components:
         - category
         - anniversary
         - releaseDate
+    User:
+      type: object
+      properties:
+        kind:
+          type: string
+          default: "user"
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+        - kind
+        - id
+        - name
     AlbumUpdateRequest:
       type: object
       properties:
@@ -173,6 +210,19 @@ components:
                 $ref: '#/components/schemas/ApiVersion'
               data:
                 $ref: '#/components/schemas/Album'
+            required:
+              - apiVersion
+              - data
+    UserResponse:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              apiVersion:
+                $ref: '#/components/schemas/ApiVersion'
+              data:
+                $ref: '#/components/schemas/User'
             required:
               - apiVersion
               - data

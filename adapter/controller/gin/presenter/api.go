@@ -75,6 +75,13 @@ type Error struct {
 // ReleaseDate defines model for ReleaseDate.
 type ReleaseDate = openapi_types.Date
 
+// User defines model for User.
+type User struct {
+	Id   int    `json:"id"`
+	Kind string `json:"kind"`
+	Name string `json:"name"`
+}
+
 // AlbumResponse defines model for AlbumResponse.
 type AlbumResponse struct {
 	ApiVersion ApiVersion `json:"apiVersion"`
@@ -84,6 +91,12 @@ type AlbumResponse struct {
 // ErrorResponse defines model for ErrorResponse.
 type ErrorResponse struct {
 	Error Error `json:"error"`
+}
+
+// UserResponse defines model for UserResponse.
+type UserResponse struct {
+	ApiVersion ApiVersion `json:"apiVersion"`
+	Data       User       `json:"data"`
 }
 
 // AlbumCreateRequestBody defines model for AlbumCreateRequestBody.
@@ -186,6 +199,9 @@ type ClientInterface interface {
 	UpdateAlbumByIdWithBody(ctx context.Context, id int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateAlbumById(ctx context.Context, id int, body UpdateAlbumByIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetUserById request
+	GetUserById(ctx context.Context, id int, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) CreateAlbumWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -250,6 +266,18 @@ func (c *Client) UpdateAlbumByIdWithBody(ctx context.Context, id int, contentTyp
 
 func (c *Client) UpdateAlbumById(ctx context.Context, id int, body UpdateAlbumByIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateAlbumByIdRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetUserById(ctx context.Context, id int, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetUserByIdRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -415,6 +443,40 @@ func NewUpdateAlbumByIdRequestWithBody(server string, id int, contentType string
 	return req, nil
 }
 
+// NewGetUserByIdRequest generates requests for GetUserById
+func NewGetUserByIdRequest(server string, id int) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/users/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -473,6 +535,9 @@ type ClientWithResponsesInterface interface {
 	UpdateAlbumByIdWithBodyWithResponse(ctx context.Context, id int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAlbumByIdResponse, error)
 
 	UpdateAlbumByIdWithResponse(ctx context.Context, id int, body UpdateAlbumByIdJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAlbumByIdResponse, error)
+
+	// GetUserByIdWithResponse request
+	GetUserByIdWithResponse(ctx context.Context, id int, reqEditors ...RequestEditorFn) (*GetUserByIdResponse, error)
 }
 
 type CreateAlbumResponse struct {
@@ -569,6 +634,28 @@ func (r UpdateAlbumByIdResponse) StatusCode() int {
 	return 0
 }
 
+type GetUserByIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *UserResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetUserByIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetUserByIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // CreateAlbumWithBodyWithResponse request with arbitrary body returning *CreateAlbumResponse
 func (c *ClientWithResponses) CreateAlbumWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAlbumResponse, error) {
 	rsp, err := c.CreateAlbumWithBody(ctx, contentType, body, reqEditors...)
@@ -619,6 +706,15 @@ func (c *ClientWithResponses) UpdateAlbumByIdWithResponse(ctx context.Context, i
 		return nil, err
 	}
 	return ParseUpdateAlbumByIdResponse(rsp)
+}
+
+// GetUserByIdWithResponse request returning *GetUserByIdResponse
+func (c *ClientWithResponses) GetUserByIdWithResponse(ctx context.Context, id int, reqEditors ...RequestEditorFn) (*GetUserByIdResponse, error) {
+	rsp, err := c.GetUserById(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetUserByIdResponse(rsp)
 }
 
 // ParseCreateAlbumResponse parses an HTTP response from a CreateAlbumWithResponse call
@@ -767,6 +863,32 @@ func ParseUpdateAlbumByIdResponse(rsp *http.Response) (*UpdateAlbumByIdResponse,
 	return response, nil
 }
 
+// ParseGetUserByIdResponse parses an HTTP response from a GetUserByIdWithResponse call
+func ParseGetUserByIdResponse(rsp *http.Response) (*GetUserByIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetUserByIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest UserResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Create a new album
@@ -781,6 +903,9 @@ type ServerInterface interface {
 	// Update a album by ID
 	// (PATCH /albums/{id})
 	UpdateAlbumById(c *gin.Context, id int)
+	// Find user by ID
+	// (GET /users/{id})
+	GetUserById(c *gin.Context, id int)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -877,6 +1002,30 @@ func (siw *ServerInterfaceWrapper) UpdateAlbumById(c *gin.Context) {
 	siw.Handler.UpdateAlbumById(c, id)
 }
 
+// GetUserById operation middleware
+func (siw *ServerInterfaceWrapper) GetUserById(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id int
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetUserById(c, id)
+}
+
 // GinServerOptions provides options for the Gin server.
 type GinServerOptions struct {
 	BaseURL      string
@@ -908,24 +1057,26 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.DELETE(options.BaseURL+"/albums/:id", wrapper.DeleteAlbumById)
 	router.GET(options.BaseURL+"/albums/:id", wrapper.GetAlbumById)
 	router.PATCH(options.BaseURL+"/albums/:id", wrapper.UpdateAlbumById)
+	router.GET(options.BaseURL+"/users/:id", wrapper.GetUserById)
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/9SWzW7bOBDHX0WY3SNhyUmADXRLnGzgy2JhtL0EOTDS2GYqkQxJuTAMvntBUor1ZSdN",
-	"U6OFLwI5nPnPb4Yc7yATpRQcudGQ7kDhc4XaXIucoV+4Kh6rcqaQGly87G3dTia4QW7cJ5WyYBk1TPD4",
-	"SQvu1nS2xpK6r78VLiGFv+J9qDjs6njoHqy1loS4n2X+K+N23Pu4loBCLQXXrewX9coPBZdKSFSmpkgl",
-	"+4JKs2B1VNje0hLIqXlbKhCkP1dMYQ7pfTti7eaBgNlKhBTE4xNmDehbpYT6gBTR+XlNqw820BqOjuqz",
-	"pA64L8cIXc7ZBpWmyjdI7YVxgytUDmNGDa5E2D0mb9bYWQIsH/f1lXG/k+OSVoWBFKhX9aJeG8X4CnyO",
-	"BVKNN9Tga5EXLVNLwDBTYCt+47MHzmvxUpsjrVxJh0tXzZA1GbnpQ9LvAfk7ARuB9CYs3Zfi1FiOJDeU",
-	"23lp9s430zHPs5bwbkqH2p/T0ktB7m7iPSyFcN1XVpplQEBLoYxugTxQCO9mDPdt84z0CIscxwWVqDVd",
-	"vaH2jSEJzsaCL7r9txSqpA6eK/4QnwvA+FL40KFEcCeiq//n0ScsZREObZpqwHSSTBIXRkjkVDJI4XyS",
-	"TM6BgKRm7fOMfRP4TylCqzkM/gme55BCuKBXdauo7mgc673ORI8PjPP+3DtLpof91XZxdzhaAhdJ8vqp",
-	"7rzxD3xVlv7prpOLaMTxW0Rf5loNJd6x3IauLjBUqMvmxq97Wdfbee65KlqiQaUhvd8Bc2VwrKFp5PB2",
-	"7tvEqApJa8b1+80+DEhdBEk6U0yaUOn/RDSrp+g7sbhTFz8HM9CIaAAZPW6j+Y1zvMKRtrpDc2puyYk6",
-	"7ANQ/st43scoqcnWQ5BhUpyA5Xsu/vD/tP2TyxLS6Xe4t0G1aYBXqoAU1sbINI6Tif+ll8llElPJ4s0U",
-	"LOkZFSKjxVpoc9xsevaP9zbtmj3Y7wEAAP//6ZyV11UNAAA=",
+	"H4sIAAAAAAAC/9RXT2/bPgz9KgZ/v6MQO22BFb61aVfkMgzBukuRg2oziTpbUiU5QxD4uw+S7MaOnT/L",
+	"uqBDLo5FPT4+kqK8hkTkUnDkRkO8BoWvBWpzK1KG7sVN9lzkI4XU4ORtbWVXEsENcmMfqZQZS6hhgocv",
+	"WnD7TicLzKl9+l/hDGL4L9y4Cv2qDrvwUJZlSbzfR5n+Tb8teOe3JKBQS8F1I/pJ9ea3nEslJCpTqUgl",
+	"+45KM2+1l9jGsiSQUnNcKOCpvxZMYQrxU9NjBTMlYFYSIQbx/IJJLfS9UkK9Q4hocQ5xdc46XP3WHfwe",
+	"NaoPngFL8dQElKSivKm3HvKcsyUqTZXrgAqFcYNz65lAQg3OhV/dx3RU25UEWNqP9YNxt5LijBaZgRio",
+	"Y/XGXhvF+BxcvBlSjXfU4CHPk4ZpScAwk2HDf425JaLj4qjWWxqxkpYubTZdrUnPUdZV+hQhP5JgPSId",
+	"JUv7KDy3LHuC69JtNfIGfDnsQx41iLdD2lX+nOaOCnLbiU8wE8JWX15olgABLYUyuiHkjkQ4mD657+tz",
+	"ckthkWI/oRy1pvMjcl8bEg/W53zSrr+ZUDm14tnk98nnTrajpetmvLD7e3BrkY/v/h162i2Mz4QD81UE",
+	"DyK4+ToOvmEuMx/Xsi4YGA6iQWQZCImcSgYxXA6iwSUQkNQsXHihq1P3KIXvBhu9mzPjFGLwZ8hNVc2q",
+	"fT3pa4/WrSrccaXavntcRMPdeJVd2L6glASuoujwrvbMdzOoyHM3XargAhpw/Bm8dSydazfU3P+p3VGp",
+	"FK5ZWvqkZ+irqi3WnXvveN6uxqkTWtEcDSoLuQZm82LFr7Mc+4xvKsGoAkljsm9XXjntSHflKelEMWl8",
+	"6r+IYFTdHU7Uye66+jN1vRoB9coGz6tgfNejL4E59hTeA5pzCxmdqQbfQdvPjKcHdZXUJIuusn7+nUHc",
+	"U86K7mdQ+S/nyYdzsAfsGWPnx+aI2dUTdkp9rJZofbT0VKmNqxO4G5ZT/0mAalnHUKgMYlgYI+MwjAbu",
+	"F19H11FIJQuXQyjJllEmEpothDb7zYYXnxzasG02LX8FAAD//yYo18kVEAAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
